@@ -17,19 +17,19 @@ public class LoggingAspect {
     @Pointcut("execution(* com.gothamcity.proyecto2monitoreoseguridad.service.*.*(..))")
     public void serviceMethods() {}
 
-    // Antes de la ejecución del método
+    // Antes de la ejecución del metodo
     @Before("serviceMethods()")
     public void logBefore(JoinPoint joinPoint) {
         logger.info("Iniciando método: " + joinPoint.getSignature().getName());
     }
 
-    // Después de la ejecución del método
+    // Después de la ejecución del metodo
     @After("serviceMethods()")
     public void logAfter(JoinPoint joinPoint) {
         logger.info("Finalizando método: " + joinPoint.getSignature().getName());
     }
 
-    // Alrededor de la ejecución del método
+    // Alrededor de la ejecución del metodo
     @Around("serviceMethods()")
     public Object logAround(ProceedingJoinPoint joinPoint) throws Throwable {
         logger.info("Ejecutando método: " + joinPoint.getSignature().getName());

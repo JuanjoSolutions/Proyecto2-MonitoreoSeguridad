@@ -1,6 +1,5 @@
 package com.gothamcity.proyecto2monitoreoseguridad.aspect.annotations;
 
-import com.gothamcity.proyecto2monitoreoseguridad.aspect.annotations.Secured;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.*;
 import org.aspectj.lang.reflect.MethodSignature;

@@ -1,23 +1,21 @@
 package com.gothamcity.proyecto2monitoreoseguridad.config;
 import com.gothamcity.proyecto2monitoreoseguridad.service.CustomUserDetailsService;
 
-import com.gothamcity.proyecto2monitoreoseguridad.service.UserDetailsService;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.*;
 import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity // Habilita la seguridad a nivel de metodo (para @Secured)
 public class SecurityConfig {
 
     @Autowired
@@ -38,6 +36,7 @@ public class SecurityConfig {
                 .passwordEncoder(passwordEncoder)
                 .and()
                 .build();
+
     }
 
     // Define la configuración de seguridad
@@ -46,13 +45,19 @@ public class SecurityConfig {
         http
                 .csrf(csrf -> csrf.disable()) // Deshabilitar CSRF para simplificar
                 .authorizeHttpRequests(auth -> auth
+                        // Permitir acceso a la consola de H2 sin autenticación
+                        .requestMatchers("/h2-console/**").permitAll()
+                        // Rutas protegidas
                         .requestMatchers("/secure/**").authenticated()
+                        // Todas las demás rutas están permitidas
                         .anyRequest().permitAll()
                 )
-                .httpBasic(Customizer.withDefaults()); // Autenticación básica
+                // Configurar headers para permitir frames (requerido para la consola de H2)
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
 
         return http.build();
     }
 }
+
 
 

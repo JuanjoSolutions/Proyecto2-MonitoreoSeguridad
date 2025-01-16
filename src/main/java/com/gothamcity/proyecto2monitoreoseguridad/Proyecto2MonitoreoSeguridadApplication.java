@@ -9,5 +9,4 @@ public class Proyecto2MonitoreoSeguridadApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(Proyecto2MonitoreoSeguridadApplication.class, args);
 	}
-
 }

@@ -1,7 +1,7 @@
 package com.gothamcity.proyecto2monitoreoseguridad.service;
-
 import com.gothamcity.proyecto2monitoreoseguridad.model.User;
 import com.gothamcity.proyecto2monitoreoseguridad.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
