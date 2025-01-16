@@ -1,35 +1,58 @@
 package com.gothamcity.proyecto2monitoreoseguridad.config;
+import com.gothamcity.proyecto2monitoreoseguridad.service.CustomUserDetailsService;
 
+import com.gothamcity.proyecto2monitoreoseguridad.service.UserDetailsService;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.*;
-import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.SecurityFilterChain;
 
-@SuppressWarnings("deprecation")
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig extends WebSecurityConfigurerAdapter {
+@EnableMethodSecurity
+public class SecurityConfig {
 
-    @Override
-    protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        // Configuración en memoria para ejemplo
-        auth.inMemoryAuthentication()
-                .passwordEncoder(NoOpPasswordEncoder.getInstance())
-                .withUser("admin").password("admin123").roles("ADMIN", "SECURITY")
-                .and()
-                .withUser("user").password("user123").roles("USER");
+    @Autowired
+    private CustomUserDetailsService userDetailsService;
+
+    // Define el codificador de contraseñas como un bean
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
     }
 
-    @Override
-    protected void configure(HttpSecurity http) throws Exception {
-        http
-                .csrf().disable() // Deshabilitar CSRF para simplificar
-                .authorizeRequests()
-                .antMatchers("/secure/**").authenticated()
-                .anyRequest().permitAll()
+    // Configura el AuthenticationManager
+    @Bean
+    public AuthenticationManager authenticationManager(HttpSecurity http, PasswordEncoder passwordEncoder, UserDetailsService userDetailsService)
+            throws Exception {
+        return http.getSharedObject(AuthenticationManagerBuilder.class)
+                .userDetailsService(userDetailsService)
+                .passwordEncoder(passwordEncoder)
                 .and()
-                .httpBasic(); // Autenticación básica
+                .build();
+    }
+
+    // Define la configuración de seguridad
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(csrf -> csrf.disable()) // Deshabilitar CSRF para simplificar
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/secure/**").authenticated()
+                        .anyRequest().permitAll()
+                )
+                .httpBasic(Customizer.withDefaults()); // Autenticación básica
+
+        return http.build();
     }
 }
+
 
