@@ -13,6 +13,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity // Habilita la seguridad a nivel de metodo (para @Secured)
@@ -42,20 +44,19 @@ public class SecurityConfig {
     // Define la configuración de seguridad
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable()) // Deshabilitar CSRF para simplificar
+        return http
                 .authorizeHttpRequests(auth -> auth
-                        // Permitir acceso a la consola de H2 sin autenticación
+                        // Permite el acceso sin autenticación a H2 Console
                         .requestMatchers("/h2-console/**").permitAll()
-                        // Rutas protegidas
-                        .requestMatchers("/secure/**").authenticated()
-                        // Todas las demás rutas están permitidas
-                        .anyRequest().permitAll()
+                        .anyRequest().authenticated()
                 )
-                // Configurar headers para permitir frames (requerido para la consola de H2)
-                .headers(headers -> headers.frameOptions(frame -> frame.disable()));
-
-        return http.build();
+                // Desactiva CSRF para que la consola H2 funcione
+                .csrf(csrf -> csrf.disable())
+                // Desactiva frameOptions para poder mostrar la consola en un <frame>
+                .headers(headers -> headers.frameOptions(frame -> frame.disable()))
+                // Autenticación básica (puede ser lo que quieras)
+                .httpBasic(withDefaults())
+                .build();
     }
 }
 
